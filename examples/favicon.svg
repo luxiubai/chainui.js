@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+    <defs>
+        <!-- 链式连接渐变 -->
+        <linearGradient id="chain-gradient" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stop-color="#4F46E5" />
+            <stop offset="100%" stop-color="#EC4899" />
+        </linearGradient>
+
+        <!-- 响应式状态圆环 -->
+        <radialGradient id="state-pulse" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.8" />
+            <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.2" />
+        </radialGradient>
+
+        <!-- 动画效果 -->
+        <style>
+            .chain-link {
+                stroke: url(#chain-gradient);
+                stroke-width: 3;
+                fill: none;
+                stroke-dasharray: 100;
+                stroke-dashoffset: 200;
+                animation: flow 3s linear infinite;
+            }
+
+            .state-pulse {
+                fill: url(#state-pulse);
+                transform-origin: center;
+                animation: pulse 2s ease-in-out infinite;
+            }
+
+            .component-node {
+                fill: white;
+                stroke: #4F46E5;
+                stroke-width: 2;
+            }
+
+            @keyframes flow {
+                to {
+                    stroke-dashoffset: 0;
+                }
+            }
+
+            @keyframes pulse {
+
+                0%,
+                100% {
+                    transform: scale(1);
+                    opacity: 0.8;
+                }
+
+                50% {
+                    transform: scale(1.1);
+                    opacity: 0.4;
+                }
+            }
+        </style>
+    </defs>
+
+    <!-- 链式连接路径 -->
+    <path class="chain-link" d="M12 32 Q32 10, 52 32 T92 32" transform="translate(-20 0)" />
+
+    <!-- 响应式状态核心 -->
+    <circle class="state-pulse" cx="32" cy="32" r="16" />
+
+    <!-- 组件节点 -->
+    <circle class="component-node" cx="12" cy="32" r="8" />
+    <circle class="component-node" cx="32" cy="32" r="8" />
+    <circle class="component-node" cx="52" cy="32" r="8" />
+</svg>
