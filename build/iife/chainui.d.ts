@@ -184,13 +184,13 @@ export function createComponent(name: string, factory: (...args: any[]) => Chain
 /**
  * Creates and initializes a router instance with a declarative API.
  * @param {object} options - The router configuration.
- * @param {Array<{path: string, component: function, options?: object}>} options.routes - An array of route objects.
+ * @param {Array<{path: string, component: function, options?: object}|[string, Function, Object]>} options.routes - An array of route objects or tuples.
  * @param {HistoryController} [options.history] - An optional history controller instance.
  * @param {function(string): string} [options.normalizePath] - A function to normalize paths before matching.
  * @returns {{router: ChainPageRouter, Link: function, PageView: ChainElement}} An object containing the router instance, Link component, and PageView element.
  */
 export function createRouter(options?: { 
-    routes?: Array<{ path: string; component: (params: object) => ChainElement; options?: { keepAlive?: boolean; beforeEnter?: (toParams: object, fromState: { id: string | null; params: object }) => boolean; onLeave?: (fromParams: object, toState: { id: string | null; params: object }) => void } }>; 
+    routes?: Array<{ path: string; component: (params: object) => ChainElement; options?: { keepAlive?: boolean; beforeEnter?: (toParams: object, fromState: { id: string | null; params: object }) => boolean; onLeave?: (fromParams: object, toState: { id: string | null; params: object }) => void } } | [string, (params: object) => ChainElement, { keepAlive?: boolean; beforeEnter?: (toParams: object, fromState: { id: string | null; params: object }) => boolean; onLeave?: (fromParams: object, toState: { id: string | null; params: object }) => void }?]>; 
     history?: HistoryController; 
     normalizePath?: (path: string) => string;
     basePath?: string; // 新增 basePath 选项

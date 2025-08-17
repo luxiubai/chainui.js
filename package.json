@@ -1,6 +1,6 @@
 {
   "name": "@luxbai-dev/chainui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A lightweight JavaScript library for building user interfaces with a simple, elegant, and chainable API",
   "keywords": [
     "ui",
