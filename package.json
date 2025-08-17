@@ -1,0 +1,53 @@
+{
+  "name": "@luxbai-dev/chainui",
+  "version": "0.1.0",
+  "description": "A lightweight JavaScript library for building user interfaces with a simple, elegant, and chainable API",
+  "keywords": [
+    "ui",
+    "library",
+    "javascript",
+    "dom",
+    "reactive",
+    "chainable",
+    "frontend"
+  ],
+  "author": "luxiubai",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luxiubai/chainui.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/luxiubai/chainui.js/issues"
+  },
+  "homepage": "https://github.com/luxiubai/chainui.js#readme",
+  "main": "./build/cjs/chainui.min.js",
+  "module": "./build/esm/chainui.min.js",
+  "browser": "./build/iife/chainui.min.js",
+  "types": "./build/esm/index.d.ts",
+  "typings": "./build/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "browser": "./build/iife/chainui.min.js",
+      "import": "./build/esm/chainui.min.js",
+      "require": "./build/cjs/chainui.min.js"
+    }
+  },
+  "files": [
+    "build/",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "esbuild": "^0.25.9",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "build": "esbuild src/chainui.js --bundle --minify --format=iife --global-name=ChainUI --outfile=build/iife/chainui.min.js && esbuild src/chainui.js --bundle --minify --format=esm --outfile=build/esm/chainui.min.js && esbuild src/chainui.js --bundle --minify --format=cjs --outfile=build/cjs/chainui.min.js && npm run generate-types",
+    "generate-types": "node scripts/generateTypes.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+}
