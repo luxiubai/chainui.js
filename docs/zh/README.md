@@ -426,13 +426,15 @@ ChainUI 的路由系统是可插拔的，通过 `HistoryController` 抽象类来
 
 这是创建和配置路由的核心函数。
 
-- **`options.routes`**: (必选) 一个路由配置数组。每个路由对象包含：
-  - `path`: 路由路径，支持动态参数（如 `'/users/:id'`）。
-  - `component`: 一个工厂函数，返回该路由对应的 `ChainElement` 组件。该函数会接收一个 `params` 对象作为参数，包含路径中的动态参数**以及 URL 中的查询参数**。
-  - `options`: (可选) 路由特有选项：
-    - `keepAlive`: `boolean`，如果为 `true`，当离开该路由时，组件实例不会被销毁，而是隐藏。再次进入时会复用。**注意：如果路由参数发生变化，即使 `keepAlive` 为 `true`，组件也会被销毁并重新创建。**
-    - `beforeEnter`: `(toParams, fromParams) => boolean`，进入路由前的守卫函数。如果返回 `false`，则导航会被取消。
-    - `onLeave`: `(fromParams, toParams) => void`，离开路由时的钩子函数。
+- **`options.routes`**: (必选) 一个路由配置数组。每个路由可以是一个对象或一个元组（数组）：
+  - **对象形式**:
+    - `path`: 路由路径，支持动态参数（如 `'/users/:id'`）。
+    - `component`: 一个工厂函数，返回该路由对应的 `ChainElement` 组件。该函数会接收一个 `params` 对象作为参数，包含路径中的动态参数**以及 URL 中的查询参数**。
+    - `options`: (可选) 路由特有选项：
+      - `keepAlive`: `boolean`，如果为 `true`，当离开该路由时，组件实例不会被销毁，而是隐藏。再次进入时会复用。**注意：如果路由参数发生变化，即使 `keepAlive` 为 `true`，组件也会被销毁并重新创建。**
+      - `beforeEnter`: `(toParams, fromParams) => boolean`，进入路由前的守卫函数。如果返回 `false`，则导航会被取消。
+      - `onLeave`: `(fromParams, toParams) => void`，离开路由时的钩子函数。
+  - **元组形式**: `[path, component, options?]`，分别是路径、组件工厂函数和可选的路由选项。
 - **`options.history`**: (可选) 自定义 `HistoryController` 实例。
 - **`options.normalizePath`**: (可选) `(path: string) => string`，一个用于规范化路径的函数。
 - **`options.basePath`**: (可选) `string`，应用的基路径。如果你的应用部署在子目录下（例如 `https://example.com/my-app/`），则 `basePath` 应设置为 `/my-app`。这会影响路由匹配和 `Link` 组件生成的 `href`。

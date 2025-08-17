@@ -366,13 +366,15 @@ Typically, you don't need to instantiate them directly; `createRouter` automatic
 
 This is the core function for creating and configuring the router.
 
-- **`options.routes`**: (Required) An array of route configurations. Each route object includes:
-  - `path`: The route path (e.g., `'/users/:id'`).
-  - `component`: A factory function that receives a `params` object (containing dynamic path parameters **and URL query parameters**) and returns the `ChainElement` component for this route.
-  - `options`: (Optional) Route-specific options:
-    - `keepAlive`: `boolean`. If `true`, the page instance is kept alive (hidden, not destroyed) when navigating away. It will be reused when re-entering. **Note: If route parameters change, the component will be destroyed and recreated even if `keepAlive` is `true`.**
-    - `beforeEnter`: `(toParams, fromParams) => boolean`. A guard function called before entering the route. If it returns `false`, navigation will be canceled.
-    - `onLeave`: `(fromParams, toParams) => void`. A hook function called when leaving the route.
+- **`options.routes`**: (Required) An array of route configurations. Each route can be an object or a tuple (array):
+  - **Object Form**:
+    - `path`: The route path (e.g., `'/users/:id'`).
+    - `component`: A factory function that receives a `params` object (containing dynamic path parameters **and URL query parameters**) and returns the `ChainElement` component for this route.
+    - `options`: (Optional) Route-specific options:
+      - `keepAlive`: `boolean`. If `true`, the page instance is kept alive (hidden, not destroyed) when navigating away. It will be reused when re-entering. **Note: If route parameters change, the component will be destroyed and recreated even if `keepAlive` is `true`.**
+      - `beforeEnter`: `(toParams, fromParams) => boolean`. A guard function called before entering the route. If it returns `false`, navigation will be canceled.
+      - `onLeave`: `(fromParams, toParams) => void`. A hook function called when leaving the route.
+  - **Tuple Form**: `[path, component, options?]`, which are the path, component factory function, and optional route options respectively.
 - **`options.history`**: (Optional) A custom `HistoryController` instance.
 - **`options.normalizePath`**: (Optional) `(path: string) => string`. A function to normalize paths before matching.
 - **`options.basePath`**: (Optional) `string`. The base path for the application. If your application is deployed in a subdirectory (e.g., `https://example.com/my-app/`), `basePath` should be set to `/my-app`. This affects route matching and `href` generation for `Link` components.

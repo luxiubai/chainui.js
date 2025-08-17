@@ -1649,13 +1649,21 @@ export class ChainPageRouter {
 /**
  * Creates and initializes a router instance with a declarative API.
  * @param {object} options - The router configuration.
- * @param {Array<{path: string, component: function, options?: object}>} options.routes - An array of route objects.
+ * @param {Array<{path: string, component: function, options?: object}|[string, Function, Object]>} options.routes - An array of route objects or tuples.
  * @param {HistoryController} [options.history] - An optional history controller instance.
  * @param {function(string): string} [options.normalizePath] - A function to normalize paths before matching.
  * @returns {{router: ChainPageRouter, Link: function, PageView: ChainElement}} An object containing the router instance, Link component, and PageView element.
  */
 export function createRouter(options = {}) {
     const { routes = [], history, normalizePath, basePath = '' } = options;
+
+    const normalizeRoute = (route) => {
+        if (Array.isArray(route)) {
+            const [path, component, options = {}] = route;
+            return { path, component, options };
+        }
+        return route;
+    };
 
     const defaultNormalizePath = (path) => {
         let normalized = path;
@@ -1677,7 +1685,7 @@ export function createRouter(options = {}) {
     
     const router = new ChainPageRouter({ history, normalizePath: finalNormalizePath });
 
-    routes.forEach(route => {
+    routes.map(normalizeRoute).forEach(route => {
         if (route.path && route.component) {
             router.register(route.path, route.component, route.options);
         }
@@ -1746,12 +1754,34 @@ export function createRouter(options = {}) {
     return { router, Link, PageView };
 }
 
+/**
+ * Enhanced Link component that automatically parses path parameters.
+ * @param {object} props - Link properties.
+ * @param {string} props.to - Target path (can include parameters).
+ * @param {...any} children - Link children elements.
+ * @returns {ChainElement} A configured anchor element.
+ */
+export function SmartLink({ to, ...props }, ...children) {
+  const [pathPart, queryPart] = to.split('?');
+  const params = {};
+  
+  if (queryPart) {
+    const searchParams = new URLSearchParams(queryPart);
+    for (const [key, value] of searchParams) {
+      params[key] = value;
+    }
+  }
+
+  return Link({ to: pathPart, params, ...props }, ...children);
+}
+
 const ChainUI = {
     h,
     createState,
     createComponent,
     map,
     createRouter,
+    SmartLink,
     mount,
     renderToStream
 };
