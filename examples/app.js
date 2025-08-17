@@ -178,10 +178,7 @@ const { Link, PageView } = createRouter({
     basePath: '/examples',
     routes: [
         { path: '/', component: HomeComponent },
-        {
-            path: '/demos',
-            component: DemosComponent,
-        },
+        { path: '/demos',component: DemosComponent },
         { path: '/user/:name', component: UserComponent, options: { keepAlive: true } }
     ]
 });
@@ -192,8 +189,8 @@ const NavBar = createComponent('NavBar', () => {
     const navLinks = [
         { to: '/', text: 'Home' },
         { to: '/demos', text: 'Demos' },
-        { to: '/user/:name', text: 'User Profile', params: { name: 'Alice' },keepAlive: true },
-        { to: '/user/:name', text: 'Another User', params: { name: 'Bob' } , keepAlive: true }
+        { to: '/user/:name', text: 'User Profile', params: { name: 'Alice' } },
+        { to: '/user/:name', text: 'Another User', params: { name: 'Bob'   } }
     ];
 
     return h('nav').child(
