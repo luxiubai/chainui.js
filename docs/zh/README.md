@@ -1,6 +1,6 @@
 # ChainUI - UI 库
 
-ChainUI 是一个 JavaScript UI 库，通过操作流机制和链式 API 提供开发体验。
+ChainUI 是一个 JavaScript UI 库，通过操作流机制和链式 API 提供优雅的开发体验。
 
 **核心特性:**
 
@@ -481,7 +481,7 @@ const myLink = Link(
 
 #### 6. 路由守卫和生命周期
 
-你可以在路由配置中定义 `beforeEnter` 和 `onLeave` 钩子，以控制导航流程和执行副作用。
+你可以在路由配置中定义 `beforeEnter` 和 `onLeave` 钩子，以控制导航流程和执行相关操作。
 
 ```javascript
 import { h, createRouter, createState } from "@luxbai-dev/chainui";

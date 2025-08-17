@@ -1,6 +1,6 @@
 # ChainUI - A Lightweight UI Library
 
-ChainUI is a JavaScript UI library that uses an operation stream mechanism and a chainable API to provide a simple development experience. It's suitable for adding dynamic interactions to web pages.
+ChainUI is a JavaScript UI library that uses an operation stream mechanism and a chainable API to provide an elegant development experience. It's suitable for adding dynamic interactions to web pages.
 
 **Core Features:**
 
@@ -421,7 +421,7 @@ const myLink = Link(
 
 #### 6. Navigation Guards and Lifecycle Hooks
 
-You can define `beforeEnter` and `onLeave` hooks in your route configuration to control the navigation flow and execute side effects.
+You can define `beforeEnter` and `onLeave` hooks in your route configuration to control the navigation flow and perform related operations.
 
 ```javascript
 import { h, createRouter, createState } from "@luxbai-dev/chainui";
