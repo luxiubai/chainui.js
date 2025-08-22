@@ -272,7 +272,7 @@ ul {
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-normal);
   will-change: transform, opacity;
-  transform: translateZ(0); /* 启用硬件加速 */
+  transform: translateZ(0);
 }
 
 .list-item:hover {
@@ -440,12 +440,12 @@ code {
     font-size: 0.9rem;
   }
   
-  .list-item { /* Changed from li to .list-item */
+  .list-item {
     flex-direction: column;
     align-items: flex-start;
   }
   
-  .list-item .btn { /* Changed from li button to .list-item .btn */
+  .list-item .btn {
     margin-top: 0.5rem;
     width: 100%;
   }

@@ -1,56 +1,56 @@
-# ChainUI - A Lightweight UI Library
+# ChainUI - A Lightweight, High-Performance, Virtual-DOM-Free UI Library
 
-ChainUI is a JavaScript UI library that uses an operation stream mechanism and a chainable API to provide an elegant development experience. It's suitable for adding dynamic interactions to web pages.
+ChainUI is a modern JavaScript UI library focused on building high-performance user interfaces. It eschews the traditional Virtual DOM in favor of a unique "operation stream" mechanism, providing exceptional runtime performance and an intuitive development experience through its fluent chainable API.
 
-**Core Features:**
+## Core Features
 
-- **Chainable API**: Build UI with a readable, chainable syntax.
-- **Reactive State**: Built-in state management for data-driven views.
-- **Lightweight**: Small library size with minimal dependencies.
+- **Chainable API**: Construct complex UI structures in an intuitive, readable manner. Your code directly reflects the DOM structure.
+- **High Performance**: No V-DOM overhead. DOM updates are batched and applied efficiently, minimizing reflows and repaints.
+- **Reactive State Management**: Built-in simple yet powerful reactive system (`createState`) for easily creating data-driven views.
+- **Unified Element Configuration**: A powerful `set` method to configure attributes, styles, and classes with a single, consistent API.
+- **Lightweight & Zero Dependencies**: The core library is very small and has no external dependencies.
+- **Feature-Rich**: Includes built-in solutions for:
+  - Component-based architecture (`createComponent`)
+  - List rendering with optimized reconciliation algorithm (`map`)
+  - Conditional rendering (`when`)
+  - **Client-Side Routing**: A comprehensive routing system (`createRouter`, `createApp`) supporting dynamic paths, navigation guards, and history management.
+  - Server-Side Rendering (SSR) support
 
-## Quick Start
+## Quick Example
 
-Experience how simple it is to build a counter with ChainUI.
+The following is a simple counter application example built with ChainUI, demonstrating its intuitive API design.
 
 ```javascript
 import { h, createState, mount } from "@luxbai-dev/chainui";
 
-// 1. Create a reactive state using createState
 const count = createState(0);
 
-// 2. Build the UI using the h() function and chainable API
 const app = h("div").child(
-  h("h1").child("ChainUI Counter"),
-  // Create a derived state with state.map; the text updates when count changes
-  h("p").child(count.map((c) => `Current count: ${c}`)),
+  h("h1").child("Counter Example"),
+  h("p").child(count.map((c) => `Current value: ${c}`)),
   h("div").child(
     h("button")
       .child("Increment")
-      // Use the .on() method to bind events
       .on("click", () => count.update((c) => c + 1)),
     h("button")
       .child("Decrement")
-      // Bind state directly to HTML attributes with .set()
-      .set(
-        "disabled",
-        count.map((c) => c <= 0),
-        "attr"
-      )
+      .set({
+        attr: {
+          disabled: count.map((c) => c <= 0),
+        },
+      })
       .on("click", () => count.update((c) => c - 1))
   )
 );
 
-// 3. Mount the UI to a specific element on the page
-mount(app, "#app");
+mount("#app", app);
 ```
 
 ## Installation and Usage
 
-ChainUI supports multiple integration methods to fit your project's needs.
+You can add ChainUI to your project via npm/yarn, or directly use it in the browser via CDN.
 
-### 1. Using a Bundler (Vite/Webpack)
-
-This is the recommended approach, providing full TypeScript support and optimal bundle sizes.
+### Package Manager Installation
 
 ```bash
 npm install @luxbai-dev/chainui
@@ -58,479 +58,473 @@ npm install @luxbai-dev/chainui
 yarn add @luxbai-dev/chainui
 ```
 
-Import it in your JavaScript or TypeScript files:
-
 ```javascript
+// Then import in your module
 // Named imports (recommended)
 import { h, createState, mount } from "@luxbai-dev/chainui";
 
 // Or use default import
 import ChainUI from "@luxbai-dev/chainui";
-// Then use as ChainUI.h, ChainUI.createState, ChainUI.mount, etc.
+// Then use ChainUI.h, ChainUI.createState, ChainUI.mount, etc.
 ```
 
-### 2. Via `<script type="module">` (ESM)
+### CDN Import
 
-You can use the ESM build directly in modern browsers without any build tools. Using a CDN like [unpkg](https://www.unpkg.com/) is recommended.
+You can also directly include ChainUI via CDN, which is very convenient for rapid prototyping or projects not using build tools. Please use the `@latest` version of `chainui.min.js` to get the latest features.
 
 ```html
-<!DOCTYPE html>
-<html>
-  <body>
-    <div id="app"></div>
+<!-- Include before </head> or at the end of <body> -->
+<script src="https://cdn.jsdelivr.net/npm/@luxbai-dev/chainui@latest/build/iife/chainui.min.js"></script>
+<script>
+  // ChainUI will be exposed as a global variable ChainUI
+  const { h, createState, mount } = ChainUI;
 
-    <script type="module">
-      // Import from a CDN, pinning to a specific version for stability
-      import {
-        h,
-        createState,
-        mount,
-      } from "https://www.unpkg.com/@luxbai-dev/chainui@latest/build/esm/chainui.min.js";
+  const count = createState(0);
 
-      const app = h("p").child("Hello from ESM!");
-      mount(app, "#app");
-    </script>
-  </body>
-</html>
+  const app = h("div").child(
+    h("h1").child("Counter Example (from CDN)"),
+    h("p").child(count.map((c) => `Current value: ${c}`)),
+    h("div").child(
+      h("button")
+        .child("Increment")
+        .on("click", () => count.update((c) => c + 1)),
+      h("button")
+        .child("Decrement")
+        .set({
+          attr: {
+            disabled: count.map((c) => c <= 0),
+          },
+        })
+        .on("click", () => count.update((c) => c - 1))
+    )
+  );
+
+  mount("#app", app);
+</script>
 ```
-
-### 3. Via `<script>` Tag (IIFE)
-
-For rapid prototyping or legacy projects, the IIFE build is the simplest option. It exposes a global `ChainUI` object.
-
-```html
-<!DOCTYPE html>
-<html>
-  <body>
-    <div id="app"></div>
-
-    <!-- Include the IIFE build file -->
-    <script src="https://www.unpkg.com/@luxbai-dev/chainui@latest/build/iife/chainui.min.js"></script>
-    <script>
-      // All APIs are available on the global ChainUI object
-      const { h, createState, mount } = ChainUI;
-
-      const app = h("p").child("Hello from IIFE!");
-      mount(app, "#app");
-    </script>
-  </body>
-</html>
-```
-
-### 4. In Node.js
-
-ChainUI can also run in a Node.js environment, primarily for Server-Side Rendering (SSR). It supports both CommonJS and ES Module systems.
-
-## Advanced Topics
-
-**CommonJS (CJS)**
-
-```javascript
-const { h, renderToStream } = require("@luxbai-dev/chainui");
-
-// ... see the Server-Side Rendering section for details
-```
-
-**ES Module (ESM)**
-
-Set `"type": "module"` in your `package.json` or use the `.mjs` file extension.
-
-```javascript
-import { h, renderToStream } from "@luxbai-dev/chainui";
-
-// ... see the Server-Side Rendering section for details
-```
-
-## Core Concepts
-
-Understanding ChainUI's core mechanics will help you unlock its full potential.
-
-### 1. Operation Stream
-
-This is the cornerstone of ChainUI's performance. When you call methods like `.child()`, `.attr()`, or `.text()`, ChainUI **does not immediately manipulate the DOM**. Instead, it translates these intentions (e.g., `CREATE_ELEMENT`, `SET_ATTRIBUTE`) into simple operation objects and pushes them into a queue.
-
-### 2. Batch Updates
-
-All collected operations are executed in a single batch within a `requestAnimationFrame` callback. This means all DOM reads and writes are consolidated into a single browser render frame, effectively preventing layout thrashing and ensuring smooth performance.
-
-### 3. Event Delegation
-
-For maximum performance and minimal memory footprint, ChainUI uses event delegation on the root element to handle all events. When you bind an event with `.on()`, it doesn't call `addEventListener` on each element. Instead, the handler is registered with a global manager. This is especially efficient for large lists and complex applications.
 
 ## API Reference
 
-### `h(tagName)`
+### Core Building Functions
 
-`h` (short for `createElement`) is the entry point for all UI construction. It returns a `ChainElement` instance, which you can then use chainable methods on to define its properties and children.
+#### `h(tagName)`
+
+`h` (short for `createElement`) is the entry point for all UI construction. It returns a `ChainElement` instance, which allows you to define the element's structure and behavior through chainable calls.
+
+#### `createComponent(name, factory)`
+
+The `createComponent` function is used to encapsulate UI logic into reusable components.
 
 ```javascript
-const myDiv = h("div");
+const MyButton = createComponent("MyButton", (text, onClickHandler) =>
+  h("button")
+    .set("data-component-name", "MyButton") // For debugging
+    .on("click", onClickHandler)
+    .child(text)
+);
+
+h("div").child(
+  MyButton("Click Me", () => console.log("Button clicked")),
+  MyButton("Another Button", () => alert("Another button clicked"))
+);
 ```
 
-### Element Operations
+**Mechanism Details**:
 
-- **`.child(...children)`**: Adds one or more child nodes. Children can be `ChainElement` instances, strings, numbers, or state objects.
-- **`.on(eventType, handler)`**: Attaches an event listener.
-- **`.when(state, trueFactory, falseFactory, options?)`**: Conditionally renders different UI based on a state.
-- **`.set(name, value, type?)`**: A powerful method for setting attributes, styles, and classes.
+- `createComponent` accepts a component name and a factory function. The factory function receives component arguments and returns a `ChainElement` instance as the root of the component.
+- It returns a new component function that, when called, executes the factory function and adds a `data-component` attribute to the component's root node for easy debugging and identification.
 
-  **`.set()` Usage:**
+### Reactive State Management
 
-  1.  **Set a single property/style**:
+#### `createState(initialValue)`
 
-      ```javascript
-      // Set an attribute (type is optional and often inferred)
-      h("input").set("placeholder", "Enter text...", "attr");
-
-      // Set a style
-      h("div").set("color", "red", "style");
-
-      // Add/remove a class
-      h("p").set("active", true, "class"); // Adds 'active'
-      h("p").set("hidden", false, "class"); // Removes 'hidden'
-      ```
-
-  2.  **Set multiple properties with an object**:
-
-      ```javascript
-      h("div").set({
-        attr: { id: "main", "data-value": 123 },
-        style: { backgroundColor: "lightblue", fontSize: "16px" },
-        class: {
-          "is-active": true,
-          "is-disabled": someState.map((s) => s.disabled),
-        },
-      });
-      ```
-
-  3.  **Flexible Class Setting**:
-      `class` property in the configuration object supports various formats for maximum flexibility:
-
-      - **Object Form**: Keys are class names, values are booleans (`true` to add, `false` to remove).
-        ```javascript
-        .set({ class: { 'class-a': true, 'class-b': false, 'class-c': someState.value } })
-        ```
-      - **Array Form**: Each string in the array will be added as a class.
-        ```javascript
-        .set({ class: ['class-x', 'class-y', 'class-z'] })
-        ```
-      - **String Form**: The string will be added directly as a class (supports space-separated multiple classes).
-        ```javascript
-        .set({ class: 'single-class another-class' })
-        ```
-
-### Reactive State (`createState`)
-
-`createState` is the heart of ChainUI's reactivity system. It returns a state object that the UI can subscribe to for automatic updates.
+The `createState` function is used to create reactive state objects. When the state's value changes, all UI parts subscribed to this state will automatically update.
 
 ```javascript
-const name = createState("Guest");
+const count = createState(0); // Create a reactive state with initial value 0
 
-// Read the value
-console.log(name.value); // "Guest"
+// Access state value
+console.log(count.value); // 0
 
-// Update the value
-name.value = "Alex"; // Option 1: Direct assignment
-name.update((currentName) => currentName + "!"); // Option 2: Updater function, recommended for complex logic
+// Update state value
+count.update((c) => c + 1); // count.value is now 1
+count.value = 5; // Can also assign directly
 
-// Subscribe to changes
-const unsubscribe = name.subscribe((newValue) => {
-  console.log(`Name changed to: ${newValue}`);
+// Subscribe to state changes
+const unsubscribe = count.subscribe((newValue) => {
+  console.log("Count changed to:", newValue);
 });
-// Call unsubscribe() when no longer needed to prevent memory leaks.
+// ...
+unsubscribe(); // Unsubscribe
 
-// Derived State
-// The .map() method creates a new, read-only state whose value is computed from the original.
-const welcomeMessage = name.map((n) => `Welcome, ${n}`);
-
-// Use it in the UI
-h("h1").child(welcomeMessage); // The h1's text will automatically update when `name` changes
+// `map` method: Create a derived state
+const doubledCount = count.map((c) => c * 2);
+console.log(doubledCount.value); // If count is 5, doubledCount is 10
 ```
 
-### Rendering Lists (`map`)
+**Mechanism Details**:
+`createState` returns an object containing `value` (getter/setter), `update`, `subscribe`, and `map` methods.
 
-The `map` function is a specialized utility for rendering dynamic lists. It takes a state object containing an array and a factory function, efficiently rendering each item into a UI element.
+- The `value` getter returns the current value, and the setter triggers all subscribers if the new value is different from the old one.
+- The `update` method provides a functional way to update the state, or you can directly pass a new value.
+- `subscribe` allows registering callback functions that will be called when the state value updates. It immediately calls the callback once and returns an unsubscribe function.
+- The `map` method is a powerful feature that allows you to create a new derived state based on the current state. This derived state automatically updates as the original state changes, but it is read-only and cannot be directly modified. This is very useful for computing new values from existing states without manually managing dependencies.
 
-**How it works**: When the state array changes, ChainUI uses an efficient reconciliation algorithm. It identifies each element by its `data-key` attribute and computes the minimal set of DOM operations (add, remove, move) to update the view, instead of wastefully re-rendering the entire list. Therefore, each item in the list needs to be provided with a stable and unique `key`.
+#### `map(stateArray, factory)`
+
+The `map` function is used to dynamically render a list from a reactive array state (`ChainState<Array<T>>`).
 
 ```javascript
 const items = createState([
-  { id: 1, text: "Learn ChainUI" },
-  { id: 2, text: "Build a project" },
+  { id: 1, text: "Item 1" },
+  { id: 2, text: "Item 2" },
 ]);
 
-const list = h("ul").child(
-  // The map function takes a state array and a factory function
-  map(items, (item, index) =>
-    h("li")
-      // CRITICAL! Provide a unique key using .set()
-      .set("data-key", item.id, "attr")
-      .child(`${index + 1}: ${item.text}`)
-  )
+h("ul").child(
+  map(items, (item) => h("li").set("key", item.id).child(item.text))
 );
 
-// Add a new item
-setTimeout(() => {
-  items.update((current) => [
-    ...current,
-    { id: 3, text: "Share with friends" },
-  ]);
-}, 2000);
+// When the items state updates, the list will automatically reconcile and update
+items.update((arr) => [...arr, { id: 3, text: "Item 3" }]);
 ```
 
-### Conditional Rendering (`when`)
+**Mechanism Details**:
 
-The `when` method dynamically renders one of two components based on a state's value.
+- `map` internally creates a `div` container and adds a `BIND_LIST` operation to its `OperationStream`.
+- The `BIND_LIST` operation subscribes to changes in `stateArray`. When the array updates, `ChainRuntime`'s `reconcileList` method is called.
+- `reconcileList` uses an efficient list reconciliation algorithm. By comparing the `key` (usually `item.id` or index) of new and old list items, it intelligently adds, removes, or moves DOM nodes, minimizing DOM operations.
+
+### `ChainElement` Element Operations
+
+`ChainElement` is the core object returned by the `h()` function, providing rich chainable methods to define the structure, attributes, styles, events, and behavior of UI elements.
+
+#### `.child(...children)`
+
+Adds one or more child nodes. Child nodes can be `ChainElement` instances, strings (automatically converted to text nodes), or `ChainState<string>` instances (automatically creating reactive text nodes).
 
 ```javascript
-const isLoggedIn = createState(false);
+h("div").child(
+  h("span").child("Hello"),
+  " ", // Text node
+  createState("World!"), // Reactive text node
+  h("button").child("Click Me")
+);
+```
+
+**Mechanism Details**:
+
+- When adding `ChainElement` child nodes, the child's `OperationStream` is merged into the parent's stream, and the child's event handlers are also collected.
+- When adding a string or `ChainState<string>`, the `_createTextChild` method is internally called to create a text node or reactive text node, and its operations are added to the stream.
+
+#### `.on(eventType, handler)`
+
+Attaches an event listener to the element.
+
+```javascript
+h("button")
+  .child("Click")
+  .on("click", (e) => console.log("Button clicked", e));
+```
+
+**Mechanism Details**:
+
+- ChainUI uses an event delegation mechanism to improve performance. Event listeners are not directly attached to each DOM element but are uniformly listened to on `document.body` via `EventDelegator`.
+- When an event is triggered, `EventDelegator` finds the corresponding handler based on the `data-chain-action` attribute and executes it. This reduces memory consumption, especially when dealing with a large number of dynamic elements.
+- In SSR scenarios, event handlers are serialized as strings and re-bound on the client.
+
+#### `.set(name, value, type?)`
+
+A powerful unified method for setting element attributes (`attr`), styles (`style`), or CSS classes (`class`). It supports chainable calls and can accept reactive states as values.
+
+```javascript
+h("div")
+  .set("id", "my-element") // Set attribute
+  .set("color", "red", "style") // Set style
+  .set("active", true, "class"); // Add class
+
+// Can also set multiple properties at once with an object
+const isActive = createState(true);
+h("button").set({
+  attr: {
+    "data-custom": "value",
+    disabled: isActive.map((v) => !v), // Attribute bound to reactive state
+  },
+  style: {
+    backgroundColor: isActive.map((v) => (v ? "blue" : "gray")), // Style bound to reactive state
+    padding: "10px",
+  },
+  class: {
+    "btn-primary": isActive, // Class bound to reactive state
+    "btn-secondary": isActive.map((v) => !v),
+    "large-text": true,
+    "another-class": false, // false will remove the class
+  },
+});
+```
+
+**Parameters**:
+
+- `name`: Attribute name, style property name, class name, or an object containing `attr`, `style`, `class` configurations.
+- `value`: The corresponding value, which can be a regular value or a `ChainState` instance.
+- `type`: (Optional) Explicitly specifies the type of setting (`'attr'`, `'style'`, `'class'`). If not provided, ChainUI will attempt to infer the type based on `name` (e.g., if `name` is a valid CSS property, it defaults to `'style'`).
+
+**Mechanism Details**:
+
+- The `set` method internally calls `_setAttr`, `_setStyle`, or `_setClass` methods.
+- When `value` is a `ChainState` instance, the `set` method internally calls the `_bind` method to bind state changes to corresponding DOM operations. This means that when the state updates, relevant attributes, styles, or classes will automatically update without manual DOM manipulation.
+- For attribute binding, if `ChainState` is unmapped, ChainUI uses the `BIND_ATTRIBUTE` operation type for optimized binding.
+- For class binding, `value` can be a boolean or `ChainState<boolean>` to control the addition or removal of the class.
+
+#### `.when(state, trueFactory, falseFactory?, options?)`
+
+Conditionally renders one of two components based on a boolean reactive state (`ChainState<boolean>`).
+
+```javascript
+const showContent = createState(true);
 
 h("div").child(
   h("button")
-    .child(isLoggedIn.map((v) => (v ? "Logout" : "Login")))
-    .on("click", () => (isLoggedIn.value = !isLoggedIn.value)),
-
-  // The .when() method for conditional rendering
+    .child("Toggle Content")
+    .on("click", () => showContent.update((v) => !v)),
   h("div").when(
-    isLoggedIn,
-    () => h("p").child("Welcome back!"), // Renders when true
-    () => h("p").child("Please log in."), // Renders when false (optional)
-    { keepAlive: true } // Enable keepAlive mode
+    showContent,
+    () => h("p").child("This content is shown when state is true."),
+    () => h("p").child("This content is shown when state is false.")
   )
 );
 ```
 
-**`keepAlive` Mode**:
-By default, the inactive component is completely removed from the DOM. If you want to preserve the component and its internal state (like form inputs), enable `keepAlive` mode. This will toggle the component's visibility using `display: none` instead.
+**Parameters**:
 
-```javascript
-h("div").when(state, trueFactory, falseFactory, { keepAlive: true });
-```
+- `state`: A `ChainState<boolean>` instance to control rendering.
+- `trueFactory`: A factory function to create the component when `state` is `true`.
+- `falseFactory`: (Optional) A factory function to create the component when `state` is `false`.
+- `options`: (Optional) Rendering options.
+  - `options.keepAlive`: `boolean` (default is `false`). If set to `true`, both components created by `trueFactory` and `falseFactory` will be created and added to the DOM, but their visibility will be toggled using `display: none` style based on the `state` value, instead of being destroyed/recreated. This is very useful for scenarios where component state needs to be preserved or frequent DOM operations need to be avoided.
 
-### Creating Components (`createComponent`)
+**Mechanism Details**:
 
-Encapsulate UI logic into reusable, independent units with `createComponent`.
-
-```javascript
-// Define a Button component
-const Button = createComponent("Button", (label, onClick) => {
-  return h("button")
-    .child(label)
-    .set("padding", "8px 16px", "style")
-    .on("click", onClick);
-});
-
-// Use the component in your app
-const app = h("div").child(
-  Button("Click Me", () => alert("Componentized!")),
-  Button("Another Button", () => console.log("..."))
-);
-```
-
-### Form Handling
-
-Easily manage forms by creating a two-way binding between a state and a form element's `value` attribute and `input` event.
-
-```javascript
-const textValue = createState("");
-
-const app = h("div").child(
-  h("input")
-    .set("type", "text", "attr")
-    .set("placeholder", "Type something...", "attr")
-    // Bind the value attribute to the state
-    .set("value", textValue, "attr")
-    // Listen to the input event to update the state with the input's value
-    .on("input", (e) => (textValue.value = e.target.value)),
-
-  h("p").child(textValue.map((v) => `You are typing: ${v}`))
-);
-```
-
-## Advanced Topics
+- By default, `when` destroys the old component and creates a new one when the state toggles.
+- When `keepAlive` is `true`, `when` creates both components and dynamically binds their `display` styles using `state.map`, achieving CSS-based show/hide toggling. This avoids frequent mounting and unmounting of components, preserving their internal state.
 
 ### Client-Side Routing
 
-ChainUI provides a complete client-side routing solution, supporting declarative route configuration, dynamic parameters, navigation guards, and history management.
+ChainUI provides a comprehensive client-side routing system, supporting dynamic paths, navigation guards, and history management.
 
-#### 1. History Controllers
+#### `createRouter(options)`
 
-ChainUI's routing system is pluggable, managing browser history through the `HistoryController` abstract class. It offers two built-in implementations:
-
-- **`BrowserHistory`**: For browser environments, using the HTML5 History API (`pushState`, `replaceState`, `popstate`).
-- **`ServerHistory`**: For non-browser environments (e.g., SSR or testing), maintaining an in-memory history stack.
-
-Typically, you don't need to instantiate them directly; `createRouter` automatically selects one based on the environment.
-
-#### 2. `createRouter(options) → { router, Link, PageView }`
-
-This is the core function for creating and configuring the router.
-
-- **`options.routes`**: (Required) An array of route configurations. Each route can be an object or a tuple (array):
-  - **Object Form**:
-    - `path`: The route path (e.g., `'/users/:id'`).
-    - `component`: A factory function that receives a `params` object (containing dynamic path parameters **and URL query parameters**) and returns the `ChainElement` component for this route.
-    - `options`: (Optional) Route-specific options:
-      - `keepAlive`: `boolean`. If `true`, the page instance is kept alive (hidden, not destroyed) when navigating away. It will be reused when re-entering. **Note: If route parameters change, the component will be destroyed and recreated even if `keepAlive` is `true`.**
-      - `beforeEnter`: `(toParams, fromParams) => boolean`. A guard function called before entering the route. If it returns `false`, navigation will be canceled.
-      - `onLeave`: `(fromParams, toParams) => void`. A hook function called when leaving the route.
-  - **Tuple Form**: `[path, component, options?]`, which are the path, component factory function, and optional route options respectively.
-- **`options.history`**: (Optional) A custom `HistoryController` instance.
-- **`options.normalizePath`**: (Optional) `(path: string) => string`. A function to normalize paths before matching.
-- **`options.basePath`**: (Optional) `string`. The base path for the application. If your application is deployed in a subdirectory (e.g., `https://example.com/my-app/`), `basePath` should be set to `/my-app`. This affects route matching and `href` generation for `Link` components.
-
-`createRouter` returns a configuration object containing the `router` instance, `Link` component, and `PageView` element.
-
-#### 3. `router` Instance
-
-The `router` instance returned by `createRouter` allows for programmatic navigation:
-
-- **`router.navigate(path, params?, replace?)`**: Navigates to the specified path. If the target path and parameters are identical to the current ones, no navigation will occur.
-  - `path`: The target path.
-  - `params`: (Optional) An object containing dynamic route parameters and query parameters.
-  - `replace`: (Optional) `boolean`. If `true`, replaces the current history entry instead of pushing a new one.
-- **`router.goBack()`**: Navigates back in history.
-- **`router.getCurrentPage()`**: Gets the current page's ID and parameters.
-- **`router.closePage(pageId)`**: Closes the page with the specified ID and removes its component instance from the cache.
-
-#### 4. `Link` Component
-
-`Link` is a component for creating navigation links. It renders an `<a>` tag and automatically handles click events for client-side routing.
-
-- **`props.to`**: (Required) The target route path.
-- **`props.params`**: (Optional) Dynamic route parameters or query parameters. These parameters will be used to fill dynamic segments in the `to` path (e.g., `:id` in `/users/:id`), and any remaining parameters will be added as a query string to the URL.
-- **`props`**: (Optional) Additional attributes to set on the `<a>` element (e.g., `class`, `id`, `style`, etc.).
-- **`...children`**: The child content of the link (text, other elements, etc.).
+`createRouter` is a factory function for creating and initializing a router instance. It returns an object containing the `router` instance, a `Link` component, a `PageView` element, and `rootPageViewRuntime`.
 
 ```javascript
-import { h, createRouter } from "@luxbai-dev/chainui";
+import { createRouter, h, createState } from "@luxbai-dev/chainui";
 
-const { Link } = createRouter({ routes: [] }); // Assuming routes are configured
-
-// Create a navigation link
-const myLink = Link(
-  { to: "/users/:id", params: { id: 123, tab: "profile" }, class: "nav-link" },
-  "View User Profile"
-);
-// Renders as <a href="/users/123?tab=profile" data-chain-route="/users/:id" class="nav-link">View User Profile</a>
-```
-
-#### 5. `PageView` Element
-
-`PageView` is a special `ChainElement` that serves as the rendering outlet for route content. You simply add it to your application layout, and the matched component will automatically render here.
-
-#### 6. Navigation Guards and Lifecycle Hooks
-
-You can define `beforeEnter` and `onLeave` hooks in your route configuration to control the navigation flow and perform related operations.
-
-```javascript
-import { h, createRouter, createState } from "@luxbai-dev/chainui";
-
-const isAuthenticated = createState(false); // Simulate user login status
-
-const LoginPage = () =>
-  h("div").child(
-    h("h2").child("Login"),
-    h("button")
-      .child("Click to Login")
-      .on("click", () => {
-        isAuthenticated.value = true;
-        router.navigate("/dashboard"); // Navigate after successful login
-      })
-  );
-
-const DashboardPage = () => h("h2").child("Dashboard");
+const HomePage = () => h("div").child("Welcome to Home Page");
+const AboutPage = () => h("div").child("About Us");
+const UserPage = (params) => h("div").child(`User ID: ${params.id}`);
 
 const { router, Link, PageView } = createRouter({
   routes: [
-    { path: "/login", component: LoginPage },
-    {
-      path: "/dashboard",
-      component: DashboardPage,
-      options: {
-        beforeEnter: (toParams, fromParams) => {
-          if (!isAuthenticated.value) {
-            alert("Please log in to access the dashboard!");
-            router.navigate("/login", {}, true); // Redirect to login if not authenticated
-            return false; // Prevent navigation
-          }
-          console.log("Entering dashboard");
-          return true; // Allow navigation
-        },
-        onLeave: (fromParams, toParams) => {
-          console.log("Leaving dashboard");
-        },
-      },
-    },
+    { path: "/", component: HomePage },
+    { path: "/about", component: AboutPage },
+    { path: "/users/:id", component: UserPage, options: { keepAlive: true } },
   ],
+  mode: "history", // or 'hash'
 });
 
-const app = h("div").child(
-  h("nav").child(
-    Link({ to: "/login" }, "Login"),
-    Link({ to: "/dashboard" }, "Dashboard")
-  ),
-  PageView
-);
-
-mount(app, "#app");
+// PageView is a special ChainElement that renders the corresponding component based on route matching.
+// You need to mount PageView to the DOM.
+// mount('#app', PageView);
 ```
 
-#### 7. Back Button Event (`chain:backpress`)
+**Returned Object**:
 
-The ChainUI routing system listens for a custom event named `chain:backpress`. When this event is triggered, the router calls the `router.goBack()` method, simulating a browser back action. This is useful for implementing custom back button logic in non-browser environments (e.g., desktop or hybrid apps).
+- **`router`**: `ChainPageRouter` instance, used for programmatic navigation (`router.navigate('/path')`).
+- **`Link`**: A component for creating navigation links.
+  ```javascript
+  h("nav").child(
+    Link({ to: "/" }, "Home"),
+    Link({ to: "/about" }, "About"),
+    Link({ to: "/users/123", params: { id: "123" } }, "User 123")
+  );
+  ```
+- **`PageView`**: A special `ChainElement` that acts as a placeholder for route content. You need to mount `PageView` to your application's root container, and the router will be responsible for rendering the matched page component inside it.
+- **`rootPageViewRuntime`**: An internally used `ChainRuntime` instance for managing `PageView`'s own lifecycle and operations.
 
-You can trigger this event as follows:
+#### `createApp(config)`
+
+`createApp` is the main entry point for creating a ChainUI application, especially one with routing capabilities. It simplifies the router initialization and mounting process.
 
 ```javascript
-// Where you need to trigger a back operation
-document.dispatchEvent(new CustomEvent("chain:backpress"));
+import { createApp, h, createState } from "@luxbai-dev/chainui";
+
+const HomePage = () => h("div").child("Welcome to Home Page");
+const AboutPage = () => h("div").child("About Us");
+
+const { router, Link, destroy } = createApp({
+  mount: "#app", // Specify the DOM element to mount the application to
+  routes: [
+    { path: "/", component: HomePage },
+    { path: "/about", component: AboutPage },
+  ],
+  mode: "history",
+});
+
+// You can now use the router and Link components
+// router.navigate('/about');
+// h('nav').child(Link({ to: '/' }, 'Home'));
+
+// When the application is no longer needed, call destroy() to clean up resources
+// destroy();
 ```
+
+**Parameters**:
+
+- `config.mount`: (Required) A CSS selector string or an actual `HTMLElement`, specifying the target for application mounting.
+- `config.routes`: (Optional) An array of route configurations.
+- `config.mode`: (Optional) Router mode: `'history'` (default) or `'hash'`.
+- `config.persist`: (Optional) Whether to persist router history.
+- `config.initialPath`: (Optional) Initial path for memory mode.
+- Other `ChainPageRouter` options.
+
+**Returned Object**:
+
+- **`router`**: `ChainPageRouter` instance.
+- **`Link`**: Component for creating navigation links.
+- **`destroy`**: A function to destroy the entire application instance, cleaning up all routes, runtimes, and event listeners.
 
 ### Server-Side Rendering (SSR)
 
-ChainUI supports isomorphic rendering in a Node.js environment to improve First Contentful Paint (FCP) and Search Engine Optimization (SEO).
+ChainUI supports rendering in a Node.js environment for better performance and SEO. Through the `render` function, you can generate HTML strings on the server, and combine it with the client-side `mount` function to achieve fast interactive application loading.
 
-**1. On the Server (Node.js)**
+#### `render(componentFactory, options?)` (SSR Only)
 
-Choose the import syntax that matches your project's module system.
-
-**ES Module (`import`)**
+The `render` function is used in Server-Side Rendering (SSR) environments to convert a `ChainElement` into an HTML string.
 
 ```javascript
-// server.mjs
-import http from "http";
-import { h, renderToStream } from "@luxbai-dev/chainui";
-
-const App = () => h("div").child(h("h1").child("Hello from SSR"));
-const ssrData = renderToStream(() => App());
-
-// ... (HTML generation and server logic omitted)
+const { html, state, clientEventHandlers } = render(() =>
+  h("div").child("Hello SSR")
+);
+// html: "<div>Hello SSR</div>"
+// state: { 'state-1': 'someValue' } // Current values of collected reactive states
+// clientEventHandlers: [{ actionId: 'action-1', eventType: 'click', handlerCode: 'function(e){ console.log("Clicked!"); }' }]
 ```
 
-**CommonJS (`require`)**
+**Parameters**:
+
+- `componentFactory`: A factory function that returns the root `ChainElement` instance to be rendered.
+- `options`: (Optional) Rendering options.
+  - `options.format`: `'html'` (default) or `'stream'`.
+    - `'html'`: Returns the HTML string, collected states, and client event handlers.
+    - `'stream'`: Returns the serialized `OperationStream` string, collected states, and client event handlers. This is useful for client-side application recovery via `OperationStream.deserialize`.
+
+**Mechanism Details**:
+
+- `render` calls `componentFactory` to create the `ChainElement` instance.
+- It traverses the component tree, collects the current values of all reactive states bound in `BIND_STATE` operations, and returns them as a `state` object.
+- It also calls the `ChainElement.toHtml()` method to generate the HTML string and collects all event handlers, converting their `handler` functions into string form (`handlerCode`) for event replay on the client.
+
+### Internal Mechanism Details
+
+#### `OperationType` Enum
+
+`OperationType` defines all possible internal DOM operation types in ChainUI. These types are fundamental to ChainUI's core "operation stream" mechanism, describing how DOM elements are created, modified, and managed.
 
 ```javascript
-// server.js
-const http = require("http");
-const { h, renderToStream } = require("@luxbai-dev/chainui");
-
-const App = () => h("div").child(h("h1").child("Hello from SSR"));
-const ssrData = renderToStream(() => App());
-
-// ... (HTML generation and server logic omitted)
+export const OperationType = {
+  CREATE_ELEMENT: "CREATE_ELEMENT", // Creates a new DOM element
+  CREATE_TEXT_NODE: "CREATE_TEXT_NODE", // Creates a new text node
+  SET_TEXT_CONTENT: "SET_TEXT_CONTENT", // Sets the text content of a DOM node
+  APPEND_CHILD: "APPEND_CHILD", // Appends a child node to a parent node
+  REMOVE_CHILD: "REMOVE_CHILD", // Removes a child node from a parent node
+  INSERT_BEFORE: "INSERT_BEFORE", // Inserts a child node before a specified anchor node
+  SET_ATTRIBUTE: "SET_ATTRIBUTE", // Sets an attribute of a DOM element
+  REMOVE_ATTRIBUTE: "REMOVE_ATTRIBUTE", // Removes an attribute from a DOM element
+  SET_STYLE: "SET_STYLE", // Sets a CSS style property of a DOM element
+  ADD_CLASS: "ADD_CLASS", // Adds a CSS class to a DOM element
+  REMOVE_CLASS: "REMOVE_CLASS", // Removes a CSS class from a DOM element
+  ADD_EVENT_LISTENER: "ADD_EVENT_LISTENER", // Adds an event listener to a DOM element
+  MOUNT: "MOUNT", // Mounts the root component to a specified DOM container
+  BIND_STATE: "BIND_STATE", // Binds a reactive state to a DOM element or its content for automatic updates
+  BIND_ATTRIBUTE: "BIND_ATTRIBUTE", // Binds a reactive state to a specific attribute of a DOM element
+  BIND_LIST: "BIND_LIST", // Binds a reactive array state to a DOM list for efficient reconciliation updates
+  UPDATE_NODE: "UPDATE_NODE", // Internal operation: updates an existing DOM node
+  ROUTE_CHANGE: "ROUTE_CHANGE", // Internal operation: indicates a route path change
+  ROUTE_MATCH: "ROUTE_MATCH", // Internal operation: indicates a successful route path match
+  INIT_ROUTER: "INIT_ROUTER", // Internal operation: initializes the router instance
+};
 ```
 
-**2. On the Client (Browser)**
+#### `OperationStream`
+
+`OperationStream` is ChainUI's core mechanism for collecting and batch processing DOM operations. It transforms all chainable calls on `ChainElement` into a series of executable operations, which are then executed by `ChainRuntime` at appropriate times (e.g., during `mount` or state updates).
 
 ```javascript
-// client.js
-import { h, mount } from "@luxbai-dev/chainui";
-
-const App = () => h("div").child(h("h1").child("Hello from SSR"));
-
-// Mount using the ssrData from the server (this process is called "hydration")
-// It reuses the server-generated DOM and attaches event listeners and state bindings
-// without recreating the DOM from scratch.
-mount(App(), "#app", window.ssrData);
+// Internal usage example
+const stream = new OperationStream();
+stream.add({
+  type: OperationType.CREATE_ELEMENT,
+  nodeId: "node-1",
+  tagName: "div",
+});
+stream.add({
+  type: OperationType.SET_ATTRIBUTE,
+  nodeId: "node-1",
+  name: "id",
+  value: "my-div",
+});
+// ...
+const operations = stream.getOperations(); // Get the list of operations
 ```
+
+**Mechanism Details**:
+
+- **Batch Processing**: `OperationStream` collects operations and optimizes them via the `add` method. For example, if the same attribute of the same element is set consecutively, it will only keep the last operation, avoiding unnecessary intermediate DOM updates.
+- **Serialization and Deserialization**: The `serialize()` method converts the operation stream into a JSON string, which is very useful for Server-Side Rendering (SSR) to transfer the operation stream from the server to the client. The `static deserialize()` method can then deserialize the JSON string back into an `OperationStream` instance for client-side restoration and execution.
+
+#### `ChainRuntime` (Client-Side Runtime)
+
+`ChainRuntime` is ChainUI's core engine on the client-side, responsible for receiving `OperationStream` and transforming it into actual DOM operations. It manages DOM node mapping, state subscriptions, event delegation, and batch updates to ensure efficient and responsive UI rendering.
+
+**Mechanism Details**:
+
+- **`nodeMap`**: A `Map` object that stores a mapping from ChainUI internal generated node IDs to actual DOM nodes, facilitating quick lookup and manipulation.
+- **`stateSubscriptions` / `nodeSubscriptions`**: Two `Map` objects used to manage the lifecycle of reactive state subscriptions. They ensure that all related state subscriptions are correctly unsubscribed when a DOM node is removed, effectively preventing memory leaks.
+- **`eventDelegator`**: An `EventDelegator` instance, responsible for implementing an efficient event delegation mechanism, reducing the number of event listeners.
+- **`batchQueue` / `scheduleBatchExecution`**: Internal queue and scheduling mechanism that utilizes `requestAnimationFrame` to batch multiple DOM operations and execute them uniformly before the browser's next repaint, thereby optimizing performance and user experience.
+- **`applyOperation(op)`**: Executes a single DOM operation based on `OperationType`, such as creating elements, setting attributes, appending child nodes, etc.
+- **`execute(operations, immediate?)`**: Executes a series of operations, with an option for immediate execution or adding to the batch queue.
+- **`bindOperations(stream)`**: Specifically used to bind `BIND_STATE` and `BIND_LIST` type operations, ensuring the reactive update mechanism is active.
+- **`cleanupNodeTree(node)`**: Recursively cleans up event handlers and state subscriptions on a node and its entire subtree before DOM removal.
+- **`reconcileList(parentNodeId, newItems, factory)`**: Implements an efficient list reconciliation algorithm. When a reactive array state updates, it intelligently compares new and old list items, only adding, removing, or moving changed DOM nodes, minimizing DOM operations. This is achieved by assigning `data-key` attributes to list items, similar to React/Vue's `key` mechanism.
+- **`destroy()`**: Destroys the runtime instance, cleaning up all resources, including canceling animation frames, clearing queues, unsubscribing from all states, and removing event listeners.
+
+#### `EventDelegator` (Event Delegator)
+
+`EventDelegator` is a component of `ChainRuntime`, specifically designed to implement efficient event handling.
+
+**Mechanism Details**:
+
+- **Unified Listening**: It registers a global listener on `document.body` for all delegated event types (e.g., `click`, `input`).
+- **`handlerMap`**: Stores a mapping from `actionId` (a unique ID generated by `generateId('action')`) to actual event handler functions.
+- **Event Dispatching**: When the global listener captures an event, it traverses the DOM tree upwards from the event's `target` element, looking for elements with a `data-chain-action` attribute. Once found, it retrieves the corresponding handler function from `handlerMap` and executes it.
+- **`registerHandlers` / `clearHandlersForNode`**: Used to register and clear event handlers on specific nodes and their descendants.
+- **`destroy()`**: Removes all global event listeners and clears the handler map.
+
+#### `NavigationController` and `NavManager` (Routing Internal Mechanisms)
+
+- **`NavigationController`**: This is an abstract base class that defines the basic interface for navigation managers, including listening for navigation changes, notifying listeners, navigating to new paths, getting the current location, and going back in history.
+- **`NavManager`**: Implements the `NavigationController` interface, providing concrete history management logic. It supports three modes: `'history'` (using History API), `'hash'` (using URL hash), and `'memory'` (in-memory mode, for SSR or testing). `NavManager` internally manages a navigation stack and notifies all registered listeners when navigation changes.
+
+#### `ChainPageRouter` (Routing Internal Mechanisms)
+
+`ChainPageRouter` is the core of ChainUI's routing system. It is responsible for registering routes, matching paths, and managing the lifecycle and caching of page components.
+
+**Mechanism Details**:
+
+- **Route Registration**: The `register(path, componentFactory, options?)` method is used to register routes. It converts the path into a regular expression and extracts path parameters.
+- **`currentPage` State**: A `ChainState` instance that stores the ID and parameters of the currently matched page. When this state updates, the router triggers page rendering.
+- **`_runtimeCache` (Keep-Alive Cache)**: When `keepAlive: true` is set in route options, the `ChainRuntime` instance of the page component is cached. This means that when users switch between these pages, components are not destroyed and recreated but are hidden and shown, preserving their internal state and improving performance. The cache has a `keepAliveCacheLimit` and uses an LRU (Least Recently Used) eviction strategy.
+- **Navigation Guards**: Route options support `beforeEnter` (before entering) and `onLeave` (on leaving) hooks, allowing you to execute custom logic before or after navigation, such as permission checks, data loading, or cleanup.
+- **Route Matching**: The `_matchRoute` method is responsible for matching the current URL path against registered routes and parsing path and query parameters.
+- **`_handleLocationChange`**: Listens for navigation changes from `NavManager` and updates the `currentPage` state based on the new location, thereby triggering page rendering.
+- **`destroy()`**: Destroys the router instance, cleaning up all subscriptions, cached runtimes, and the history manager.

@@ -9,12 +9,13 @@ ChainUI is a modern JavaScript library for building user interfaces. It ditches 
 - **Chainable API**: Build complex UI structures in an intuitive, readable way. Your code becomes a direct reflection of the DOM structure.
 - **High Performance**: No V-DOM overhead. DOM updates are batched and applied efficiently, minimizing reflows and repaints.
 - **Reactive State Management**: A simple yet powerful built-in reactive system (`createState`) to create data-driven views with ease.
+- **Unified Element Configuration**: A powerful `set` method to configure attributes, styles, and classes with a single, consistent API.
 - **Lightweight & Zero-Dependency**: The core library is tiny and has no external dependencies.
 - **Feature-Rich**: Comes with built-in solutions for:
   - Component-based architecture (`createComponent`)
   - List rendering with optimized reconciliation (`map`)
   - Conditional rendering (`when`)
-  - **Client-Side Routing**: A comprehensive routing system (`createRouter`) with dynamic paths, navigation guards, and history management.
+  - **Client-Side Routing**: A comprehensive routing system (`createRouter`, `createApp`) with dynamic paths, navigation guards, and history management.
   - Server-Side Rendering (SSR) support
 
 ## Quick Example
@@ -35,16 +36,16 @@ const app = h("div").child(
       .on("click", () => count.update((c) => c + 1)),
     h("button")
       .child("Decrement")
-      .set(
-        "disabled",
-        count.map((c) => c <= 0),
-        "attr"
-      )
+      .set({
+        attr: {
+          disabled: count.map((c) => c <= 0),
+        },
+      })
       .on("click", () => count.update((c) => c - 1))
   )
 );
 
-mount(app, "#app");
+mount("#app", app);
 ```
 
 ## Installation

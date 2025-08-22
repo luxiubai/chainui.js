@@ -1,211 +1,417 @@
-/**
- * @license MIT
- * Copyright (c) 2025-present
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// Type definitions for ChainUI
+// Project: ChainUI
+// Definitions by: ChainUI Team
 
-// Interfaces and Enums
+/**
+ * @enum {string}
+ * @description Defines all possible DOM operation types in ChainUI.
+ */
+export declare const OperationType: {
+    readonly CREATE_ELEMENT: 'CREATE_ELEMENT';
+    readonly CREATE_TEXT_NODE: 'CREATE_TEXT_NODE';
+    readonly SET_TEXT_CONTENT: 'SET_TEXT_CONTENT';
+    readonly APPEND_CHILD: 'APPEND_CHILD';
+    readonly REMOVE_CHILD: 'REMOVE_CHILD';
+    readonly INSERT_BEFORE: 'INSERT_BEFORE';
+    readonly SET_ATTRIBUTE: 'SET_ATTRIBUTE';
+    readonly REMOVE_ATTRIBUTE: 'REMOVE_ATTRIBUTE';
+    readonly SET_STYLE: 'SET_STYLE';
+    readonly ADD_CLASS: 'ADD_CLASS';
+    readonly REMOVE_CLASS: 'REMOVE_CLASS';
+    readonly ADD_EVENT_LISTENER: 'ADD_EVENT_LISTENER';
+    readonly MOUNT: 'MOUNT';
+    readonly BIND_STATE: 'BIND_STATE';
+    readonly BIND_ATTRIBUTE: 'BIND_ATTRIBUTE';
+    readonly BIND_LIST: 'BIND_LIST';
+    readonly UPDATE_NODE: 'UPDATE_NODE';
+    readonly ROUTE_CHANGE: 'ROUTE_CHANGE';
+    readonly ROUTE_MATCH: 'ROUTE_MATCH';
+    readonly INIT_ROUTER: 'INIT_ROUTER';
+};
+
+/**
+ * @returns {number} The current value of the global ID counter.
+ */
+export declare const getGlobalIdCounter: () => number;
+
+/**
+ * @returns {void}
+ * @description Resets the global ID counter to 0.
+ */
+export declare const resetGlobalIdCounter: () => void;
+
+/**
+ * @param {string} prefix - The prefix for the ID.
+ * @returns {string} The generated unique ID.
+ */
+export declare const generateId: (prefix: string) => string;
+
+/**
+ * @param {any} value - Any type of value.
+ * @returns {string} The string representation of the value. Objects will attempt JSON.stringify.
+ */
+export declare const valueToString: (value: any) => string;
+
+/**
+ * @typedef {object} ChainState
+ * @property {*} value - The current value of the state.
+ * @property {function(function(*): *|*): void} update - Updates the value of the state.
+ * @property {function(function(*): void): function(): void} subscribe - Subscribes to state changes.
+ * @property {function(): string} toString - Returns the string representation of the state's value.
+ * @property {function(function(*): *): ChainState} map - Creates a new derived state.
+ * @property {boolean} [isMapped] - Indicates if this state is a mapped state.
+ */
 export interface ChainState<T> {
     value: T;
     update(updater: ((value: T) => T) | T): void;
     subscribe(callback: (value: T) => void): () => void;
     toString(): string;
     map<U>(mapperFn: (value: T) => U): ChainState<U>;
+    isMapped?: boolean;
 }
 
-export enum OperationType {
-    CREATE_ELEMENT = 'CREATE_ELEMENT',
-    CREATE_TEXT_NODE = 'CREATE_TEXT_NODE',
-    SET_TEXT_CONTENT = 'SET_TEXT_CONTENT',
-    APPEND_CHILD = 'APPEND_CHILD',
-    REMOVE_CHILD = 'REMOVE_CHILD',
-    INSERT_BEFORE = 'INSERT_BEFORE',
-    SET_ATTRIBUTE = 'SET_ATTRIBUTE',
-    REMOVE_ATTRIBUTE = 'REMOVE_ATTRIBUTE',
-    SET_STYLE = 'SET_STYLE',
-    ADD_CLASS = 'ADD_CLASS',
-    REMOVE_CLASS = 'REMOVE_CLASS',
-    ADD_EVENT_LISTENER = 'ADD_EVENT_LISTENER',
-    MOUNT = 'MOUNT',
-    BIND_STATE = 'BIND_STATE',
-    BIND_ATTRIBUTE = 'BIND_ATTRIBUTE',
-    BIND_LIST = 'BIND_LIST',
-    UPDATE_NODE = 'UPDATE_NODE',
-    ROUTE_CHANGE = 'ROUTE_CHANGE',
-    ROUTE_MATCH = 'ROUTE_MATCH',
-    INIT_ROUTER = 'INIT_ROUTER'
+/**
+ * @template T
+ * @param {T} initialValue - The initial value of the state.
+ * @returns {ChainState<T>} A reactive state object.
+ * @description Creates and manages a reactive state object.
+ */
+export declare function createState<T>(initialValue: T): ChainState<T>;
+
+export interface Operation {
+    type: typeof OperationType[keyof typeof OperationType];
+    nodeId: string;
+    tagName?: string;
+    content?: string;
+    parentId?: string;
+    childId?: string;
+    name?: string;
+    value?: any;
+    property?: string;
+    className?: string;
+    eventType?: string;
+    actionId?: string;
+    handler?: (event: Event) => void;
+    selector?: string;
+    state?: ChainState<any>;
+    stateId?: string;
+    updateFn?: (value: any, stream: OperationStream) => void;
+    factory?: (item: any, index: number) => ChainElement;
+    anchorId?: string;
+    router?: any; // This could be more specific if we define RouterConfig
 }
 
-// Classes
-export class OperationStream {
+/**
+ * @class OperationStream
+ * @description Manages a queue of operations for batch processing DOM updates.
+ */
+export declare class OperationStream {
+    operations: Operation[];
     constructor();
-    add(operation: any): void;
-    getOperations(): any[];
+    add(operation: Operation): void;
+    getOperations(): Operation[];
     clear(): void;
     serialize(): string;
     static deserialize(json: string): OperationStream;
 }
 
-export class ChainElement {
-    constructor(tagName?: string);
+/**
+ * @class ChainElement
+ * @description Represents a DOM element that can be built using a chainable method call.
+ */
+export declare class ChainElement {
     nodeId: string;
     stream: OperationStream;
-    children: ChainElement[];
-    eventHandlers: { actionId: string; handler: (event: Event) => void }[];
+    children: Array<ChainElement | string | ChainState<any>>;
+    eventHandlers: Array<{ actionId: string; eventType: string; handler: (event: Event) => void }>;
     tagName?: string;
-    _bind(value: any, updateFn: (val: any, updateStream: OperationStream) => void): this;
-    
-    // Unified set method
-    set(name: string, value?: any, type?: 'attr' | 'style' | 'class'): this;
-    set(config: {
-        attr?: Record<string, any>;
-        style?: Record<string, string | number>;
-        class?: string | string[] | Record<string, boolean>;
-    }): this;
-    
-    text(content: string | number | ChainState<any>): this;
-    on(eventType: string, handler: (event: Event) => void): this;
-    child(...children: (ChainElement | string | number | ChainState<any>)[]): this;
-    key(value: string | number): this;
+    constructor(tagName?: string);
+    private _bind;
+    private _setAttr;
+    private _setStyle;
+    private _setClass;
+    set(name: string | { attr?: Record<string, any>; style?: Record<string, string>; class?: string | string[] | Record<string, boolean | ChainState<boolean>> }, value?: any, type?: 'attr' | 'style' | 'class'): ChainElement;
+    on(eventType: string, handler: (event: Event) => void): ChainElement;
+    private _createTextChild;
+    child(...children: Array<ChainElement | string | ChainState<string> | Array<ChainElement | string | ChainState<string>>>): ChainElement;
     mount(selector: string): void;
-    when(state: ChainState<boolean>, trueFactory: () => ChainElement, falseFactory?: () => ChainElement, options?: { keepAlive?: boolean }): this;
+    when(state: ChainState<boolean>, trueFactory: () => ChainElement, falseFactory?: () => ChainElement, options?: { keepAlive?: boolean }): ChainElement;
+    toHtml(): { html: string; eventHandlers: Array<{ actionId: string; eventType: string; handler: (event: Event) => void }> };
 }
 
-export class ChainRuntime {
-    constructor();
-    nodeMap: Map<string, Node>;
+/**
+ * @class ChainRuntime
+ * @description Client-side runtime responsible for executing operation streams to manipulate the real DOM.
+ */
+export declare class ChainRuntime {
+    nodeMap: Map<string, HTMLElement | Text>;
     stateSubscriptions: Map<string, () => void>;
+    nodeSubscriptions: Map<string, Array<() => void>>;
     eventDelegator: EventDelegator;
-    batchQueue: any[];
+    batchQueue: Operation[];
     isBatchingScheduled: boolean;
-    execute(operations: any[], immediate?: boolean): void;
+    animationFrameId: number | null;
+    rootNodeId?: string;
+    constructor();
+    execute(operations: Operation[], immediate?: boolean): void;
+    executeOperations(stream: OperationStream, immediate?: boolean): void;
+    bindOperations(stream: OperationStream): void;
     scheduleBatchExecution(): void;
-    applyOperation(op: any): void;
+    applyOperation(op: Operation): void;
+    cleanupNodeTree(node: HTMLElement | Text): void;
     reconcileList(parentNodeId: string, newItems: any[], factory: (item: any, index: number) => ChainElement): void;
     destroy(): void;
-    cleanupNodeTree(node: Node): void;
 }
 
-export class EventDelegator {
-    constructor(runtime: ChainRuntime);
+/**
+ * @class EventDelegator
+ * @description Efficiently handles events using the event delegation pattern.
+ */
+export declare class EventDelegator {
     runtime: ChainRuntime;
     delegatedEvents: Set<string>;
     handlerMap: Map<string, (event: Event) => void>;
-    registerHandlers(handlers: { actionId: string; handler: (event: Event) => void }[]): void;
+    boundHandleEvent: (event: Event) => void;
+    constructor(runtime: ChainRuntime);
+    registerHandlers(handlers: Array<{ actionId: string; handler: (event: Event) => void }>): void;
+    clearHandlersForNode(node: HTMLElement | Text): void;
     delegate(eventType: string): void;
     handleEvent(e: Event): void;
     destroy(): void;
-    clearHandlersForNode(node: Node): void;
 }
 
-export class HistoryController {
-    constructor();
-    listeners: Set<Function>;
-    listen(callback: Function): () => void;
-    notify(location: { path: string; state: object }): void;
-    navigate(path: string, state: object, replace: boolean): void;
-    getLocation(): { path: string; state: object };
-    goBack(): void;
+/**
+ * @param {string} tagName - The tag name of the HTML element to create.
+ * @returns {ChainElement} A new ChainElement instance.
+ * @description A factory function for creating ChainElement instances. This is the starting point for building UI.
+ * @example
+ * h('div').child('Hello, world!');
+ * h('button').on('click', () => console.log('Clicked!'));
+ */
+export declare function h(tagName: string): ChainElement;
+
+export interface MountSSRData {
+    eventHandlers: Array<{ actionId: string; eventType: string; handlerCode: string | null }>;
 }
 
-export class BrowserHistory extends HistoryController {
+/**
+ * @param {string|HTMLElement} selector - The CSS selector of the DOM element or the actual HTMLElement to which the component will be mounted.
+ * @param {ChainElement|object} [componentOrEventData=null] - The ChainElement instance to mount, or an object containing SSR event handler data.
+ * @returns {{runtime: ChainRuntime, destroy: function(): void}|null} An object containing the runtime instance and a destroy function, or null if the mount target is not found.
+ * @description Mounts a component to the specified location in the DOM and binds event handlers.
+ * @example
+ * // Mount a ChainElement
+ * mount('#app', h('div').child('My App'));
+ *
+ * // Mount from SSR data
+ * const ssrData = {
+ *   eventHandlers: [{ actionId: 'action-1', eventType: 'click', handlerCode: 'function(e){ console.log("SSR Click"); }' }]
+ * };
+ * mount('#app', ssrData);
+ */
+export declare function mount(selector: string | HTMLElement, componentOrEventData?: ChainElement | MountSSRData | null): { runtime: ChainRuntime; destroy: () => void } | null;
+
+export interface RenderOptions {
+    format?: 'html' | 'stream';
+}
+
+export interface RenderResultHtml {
+    html: string;
+    state: Record<string, any>;
+    clientEventHandlers: Array<{ actionId: string; eventType: string; handlerCode: string | null }>;
+}
+
+export interface RenderResultStream {
+    stream: string;
+    state: Record<string, any>;
+    eventHandlers: Array<{ actionId: string; eventType: string; handlerCode: string | null }>;
+}
+
+/**
+ * @param {function(): ChainElement} componentFactory - A factory function that creates the root ChainElement for the component.
+ * @param {object} [options] - Rendering options.
+ * @param {'html'|'stream'} [options.format='html'] - The format of the returned output, either 'html' or 'stream'.
+ * @returns {{html: string, state: object, clientEventHandlers: Array<{actionId: string, eventType: string, handlerCode: string|null}>}|{stream: string, state: object, eventHandlers: Array<{actionId: string, eventType: string, handlerCode: string|null}>}}
+ * @description Renders a component for Server-Side Rendering (SSR).
+ * @example
+ * const { html, state, clientEventHandlers } = render(() => h('div').child('Hello SSR'));
+ * // html: "<div>Hello SSR</div>"
+ */
+export declare function render(componentFactory: () => ChainElement, options?: RenderOptions): RenderResultHtml | RenderResultStream;
+
+/**
+ * @template T
+ * @param {ChainState<Array<T>>} stateArray - A reactive array state whose values will be used to render the list.
+ * @param {function(T, number): ChainElement} factory - A factory function that creates a ChainElement for each item in the array.
+ * @returns {ChainElement} A ChainElement that will dynamically render the list.
+ * @description Dynamically renders a list of elements from a reactive array state.
+ * @example
+ * const items = createState([{ id: 1, text: 'Item 1' }]);
+ * h('ul').child(
+ *   map(items, (item) => h('li').child(item.text))
+ * );
+ */
+export declare function map<T>(stateArray: ChainState<T[]>, factory: (item: T, index: number) => ChainElement): ChainElement;
+
+/**
+ * @param {string} name - The name of the component, used for debugging or identification.
+ * @param {function(...any[]): ChainElement} factory - A factory function that accepts arguments and returns a ChainElement instance as the root of the component.
+ * @returns {function(...any[]): ChainElement} A new component function that can be used like a ChainElement.
+ * @description Creates a reusable component.
+ * @example
+ * const MyButton = createComponent('MyButton', (text) => h('button').child(text));
+ * h('div').child(MyButton('Click Me'));
+ */
+export declare function createComponent<Args extends any[]>(name: string, factory: (...args: Args) => ChainElement): (...args: Args) => ChainElement;
+
+/**
+ * @class NavigationController
+ * @description Abstract navigation controller - provides a common interface for managing navigation.
+ */
+export declare class NavigationController {
+    listeners: Set<({ path: string, state: object }) => void>;
     constructor();
+    listen(callback: ({ path: string, state: object }) => void): () => void;
+    notify(location: { path: string, state: object }): void;
     navigate(path: string, state?: object, replace?: boolean): void;
-    getLocation(): { path: string; state: object };
+    getLocation(): { path: string, state: object };
     goBack(): void;
 }
 
-export class ServerHistory extends HistoryController {
-    constructor(initialPath?: string);
+export interface NavManagerOptions {
+    defaultPath?: string;
+    mode?: 'history' | 'hash' | 'memory';
+    initialPath?: string;
+    persist?: boolean;
+}
+
+/**
+ * @class NavManager
+ * @augments NavigationController
+ * @description Provides a unified interface for managing navigation across different environments.
+ */
+export declare class NavManager extends NavigationController {
+    defaultPath: string;
+    mode: 'history' | 'hash' | 'memory';
     stack: Array<{ path: string; state: object }>;
     index: number;
+    constructor(options?: NavManagerOptions);
     navigate(path: string, state?: object, replace?: boolean): void;
     getLocation(): { path: string; state: object };
     goBack(): void;
+    toJSON(): string;
+    fromJSON(json: string): void;
+    serialize(): { stack: Array<{ path: string; state: object }>; index: number; defaultPath: string };
+    deserialize(data: { stack: Array<{ path: string; state: object }>; index: number; defaultPath: string }): void;
 }
 
-export class ChainPageRouter {
-    constructor(options?: { history?: HistoryController; normalizePath?: (path: string) => string; initialPath?: string });
-    pages: Map<string, { 
-        factory: Function; 
-        options: { 
-            keepAlive: boolean; 
-            beforeEnter?: (toParams: object, fromState: { id: string | null; params: object }) => boolean;
-            onLeave?: (fromParams: object, toState: { id: string | null; params: object }) => void;
-        };
-        regex: RegExp;
-        paramNames: string[];
-    }>;
-    currentPage: ChainState<{ id: string | null; params: object }>;
-    _runtimeCache: WeakMap<Function, { runtime: ChainRuntime; params: object }>;
-    history: HistoryController;
-    normalizePath: (path: string) => string;
-    root: Element;
-    init(rootContainer: Element): void;
-    register(path: string, componentFactory: (params: object) => ChainElement, options?: { keepAlive?: boolean; beforeEnter?: (toParams: object, fromState: { id: string | null; params: object }) => boolean; onLeave?: (fromParams: object, toState: { id: string | null; params: object }) => void }): this;
-    navigate(path: string, params?: object, replace?: boolean): this;
-    goBack(): void;
-    closePage(pageId: string): void;
-    getCurrentPage(): { id: string | null; params: object };
-    _initEventDelegation(): void;
-    _matchRoute(path: string): { route: any; resolvedParams: object; path: string };
-    _handleLocationChange(location: { path: string; state: object }): void;
-    _renderBlank(): void;
-    _renderFallback(): void;
-    _closePage(pageId: string): void;
+export interface RouteConfig {
+    path: string;
+    component: (...args: any[]) => ChainElement;
+    options?: {
+        keepAlive?: boolean;
+        beforeEnter?: (toParams: object, fromLocation: { id: string | null; params: object }) => Promise<boolean> | boolean;
+        onLeave?: (fromParams: object, toLocation: { id: string | null; params: object }) => void;
+    };
 }
 
-// Functions
-export function valueToString(value: any): string;
-export function generateId(prefix: string): string;
-export function createState<T>(initialValue: T): ChainState<T>;
-export function h(tagName: string): ChainElement;
-export function mount(component: ChainElement, selector: string, ssrData?: { stream?: string; state?: object }): ChainRuntime;
-export function renderToStream(componentFactory: () => ChainElement): { stream: string; state: object; rootId: string };
-export function map(stateArray: ChainState<any[]>, factory: (item: any, index: number) => ChainElement): ChainElement;
-export function createComponent(name: string, factory: (...args: any[]) => ChainElement): (...args: any[]) => ChainElement;
-/**
- * Creates and initializes a router instance with a declarative API.
- * @param {object} options - The router configuration.
- * @param {Array<{path: string, component: function, options?: object}|[string, Function, Object]>} options.routes - An array of route objects or tuples.
- * @param {HistoryController} [options.history] - An optional history controller instance.
- * @param {function(string): string} [options.normalizePath] - A function to normalize paths before matching.
- * @returns {{router: ChainPageRouter, Link: function, PageView: ChainElement}} An object containing the router instance, Link component, and PageView element.
- */
-export function createRouter(options?: { 
-    routes?: Array<{ path: string; component: (params: object) => ChainElement; options?: { keepAlive?: boolean; beforeEnter?: (toParams: object, fromState: { id: string | null; params: object }) => boolean; onLeave?: (fromParams: object, toState: { id: string | null; params: object }) => void } } | [string, (params: object) => ChainElement, { keepAlive?: boolean; beforeEnter?: (toParams: object, fromState: { id: string | null; params: object }) => boolean; onLeave?: (fromParams: object, toState: { id: string | null; params: object }) => void }?]>; 
-    history?: HistoryController; 
+export interface RouterOptions {
+    routes?: RouteConfig[];
+    history?: NavigationController;
     normalizePath?: (path: string) => string;
-    basePath?: string; // 新增 basePath 选项
-}): { router: ChainPageRouter; Link: (props: { to: string; params?: object; [key: string]: any }, ...children: (ChainElement | string | number | ChainState<any>)[]) => ChainElement; PageView: ChainElement };
+    mode?: 'history' | 'hash' | 'memory';
+    persist?: boolean;
+    initialPath?: string;
+    keepAliveCacheLimit?: number;
+    fallbackPath?: string;
+}
 
-// Define the shape of the default export
-declare const ChainUI: {
+/**
+ * @class ChainPageRouter
+ * @description Manages client-side routing for ChainUI applications.
+ */
+export declare class ChainPageRouter {
+    pages: Map<string, { factory: (...args: any[]) => ChainElement; options: object; regex: RegExp; paramNames: string[] }>;
+    currentPage: ChainState<{ id: string | null; params: object }>;
+    private _runtimeCache;
+    private _cacheKeys;
+    keepAliveCacheLimit: number;
+    fallbackPath: string;
+    fallbackFactory: (() => ChainElement) | null;
+    history: NavManager;
+    normalizePath: (path: string) => string;
+    private _cleanupFunctions;
+    root?: HTMLElement;
+    _rootPageViewRuntime?: { runtime: ChainRuntime, destroy: () => void };
+
+    constructor(options?: RouterOptions);
+    init(rootContainer: HTMLElement): void;
+    register(path: string, componentFactory: (...args: any[]) => ChainElement, options?: RouteConfig['options']): ChainPageRouter;
+    navigate(path: string, params?: object, replace?: boolean): Promise<ChainPageRouter>;
+    goBack(): void;
+    setFallbackPage(factory: () => ChainElement): void;
+    getCurrentPage(): { id: string | null; params: object };
+    destroy(): void;
+    private _initEventDelegation;
+    private _matchRoute;
+    private _areParamsChanged;
+    private _handleLocationChange;
+    private _renderBlank;
+    private _renderFallback;
+}
+
+export interface CreateRouterResult {
+    router: ChainPageRouter;
+    Link: (props: { to: string; params?: object } & Record<string, any>, ...children: Array<ChainElement | string | ChainState<string> | Array<ChainElement | string | ChainState<string>>>) => ChainElement;
+    PageView: ChainElement;
+    rootPageViewRuntime: { runtime: ChainRuntime; destroy: () => void };
+}
+
+/**
+ * @param {object} [options={}] - Router configuration options.
+ * @param {Array<object>} [options.routes=[]] - An array of route configurations.
+ * @param {NavigationController} [options.history] - A custom history manager.
+ * @param {function(string): string} [options.normalizePath] - A function to normalize paths.
+ * @param {'history'|'hash'|'memory'} [options.mode] - The navigation mode.
+ * @param {boolean} [options.persist] - Whether to persist history.
+ * @param {string} [options.initialPath] - The initial path for memory mode.
+ * @returns {{router: ChainPageRouter, Link: function(object, ...any[]): ChainElement, PageView: ChainElement, rootPageViewRuntime: {runtime: ChainRuntime, destroy: function(): void}}} An object containing the router instance, Link component, PageView element, and root PageView runtime.
+ * @description Creates and initializes a router instance with a declarative API.
+ */
+export declare function createRouter(options?: RouterOptions): CreateRouterResult;
+
+export interface CreateAppConfig extends RouterOptions {
+    mount: string | HTMLElement;
+}
+
+export interface CreateAppResult {
+    router: ChainPageRouter;
+    Link: (props: { to: string; params?: object } & Record<string, any>, ...children: Array<ChainElement | string | ChainState<string> | Array<ChainElement | string | ChainState<string>>>) => ChainElement;
+    destroy: () => void;
+}
+
+/**
+ * @param {object} [config={}] - Application configuration options.
+ * @param {string|HTMLElement} config.mount - The CSS selector or HTMLElement to mount the application to.
+ * @param {Array<object>} [config.routes=[]] - An array of route configurations for the application.
+ * @param {'history'|'hash'|'memory'} [config.mode] - The navigation mode for the router.
+ * @param {boolean} [config.persist] - Whether to persist router history.
+ * @param {string} [config.initialPath] - The initial path for the router.
+ * @returns {{router: ChainPageRouter, Link: function(object, ...any[]): ChainElement, destroy: function(): void}} An object containing the router instance, Link component, and a destroy function.
+ * @description Creates and initializes a ChainUI application with routing.
+ * @throws {Error} Throws an error if no 'mount' selector is provided in the configuration.
+ */
+export declare function createApp(config: CreateAppConfig): CreateAppResult;
+
+export interface ChainUI {
     h: typeof h;
     createState: typeof createState;
     createComponent: typeof createComponent;
-    map: typeof map;
+    createApp: typeof createApp;
     createRouter: typeof createRouter;
+    map: typeof map;
     mount: typeof mount;
-    renderToStream: typeof renderToStream;
-};
+    render: typeof render;
+}
 
-// Export the default object
 export default ChainUI;
